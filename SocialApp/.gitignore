@@ -1,0 +1,7 @@
+*.pyc
+*~
+__pycache__
+SocialApp
+db.sqlite3
+/static
+.DS_Store

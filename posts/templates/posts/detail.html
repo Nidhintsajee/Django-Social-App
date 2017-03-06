@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% load static %}
+
+{% block title %} {{ post.status }}{% endblock %}
+
+{% block content %}
+  <h1 style="color:#BDFF00">Status Updated: {{ post.status }}</h1>
+<h2> {{ post.description|linebreaks }}</h2>
+      {% with total_likes=post.users_like.count users_like=post.users_like.all %}
+    <div class="post-info">
+      <div>
+        <span class="count">
+            <span class="total">{{ total_likes }}</span>
+          like{{ total_likes|pluralize }}
+        </span>
+           <a  style="color :#00FF00" href="#" data-id="{{ post.id }}" data-action="{% if request.user in users_like %}un{% endif %}like" class="like button">
+      {% if request.user not in users_like %}
+        Like
+      {% else %}
+        Unlike
+      {% endif %}
+    </a>
+      </div>
+              <a style="color :#FFFFFF" class="btn btn-default" href="{% url "posts:post_edit" pk=post.pk %}">post edit</a>
+
+
+    </div>
+    <div class="post-likes">
+      {% for user in post.users_like.all %}
+        <div>
+          <img width="10%" src="{{ user.profile.photo.url }}">
+          <p>{{ user.first_name }}</p>
+        </div>
+      {% empty %}
+        Nobody likes this post yet.
+      {% endfor %}
+    </div>
+  {% endwith %}
+{% with comments.count as total_comments %}
+  <h2>
+    {{ total_comments }} comment{{ total_comments|pluralize }}
+  </h2>
+{% endwith %}
+{% for comment in comments %}
+  <div class="comment">
+    <p class="info">
+      Comment {{ forloop.counter }} by {{ comment.name }}
+      {{ comment.created }}
+    </p>
+    {{ comment.body|linebreaks }}
+  </div>
+{% empty %}
+  <p>There are no comments yet.</p>
+{% endfor %}
+{% if new_comment %}
+  <h2>Your comment has been added.</h2>
+{% else %}
+  <h2>Add a new comment</h2>
+  <form action="." method="post">
+    {{ comment_form.as_p }}
+    {% csrf_token %}
+    <p><input type="submit" value="Add comment"></p>
+  </form>
+{% endif %}
+{% endblock %}
+
+
+{% block domready %}
+  $('a.like').click(function(e){
+    e.preventDefault();
+    $.post('{% url "posts:like" %}',
+      {
+        id: $(this).data('id'),
+        action: $(this).data('action')
+      },
+      function(data){
+        if (data['status'] == 'ok')
+        {
+          var previous_action = $('a.like').data('action');
+
+          // toggle data-action
+          $('a.like').data('action', previous_action == 'like' ? 'unlike' : 'like');
+          // toggle link text
+          $('a.like').text(previous_action == 'like' ? 'Unlike' : 'Like');
+
+          // update total likes
+          var previous_likes = parseInt($('span.count .total').text());
+          $('span.count .total').text(previous_action == 'like' ? previous_likes + 1 : previous_likes - 1);
+        }
+      }
+    );
+  });
+{% endblock %}

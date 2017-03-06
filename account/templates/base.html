@@ -1,0 +1,73 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title style="font-size:300%;color:#FFFF00;">{% block title %}Social App{% endblock %}</title>
+
+</head>
+<body <a style="color: #33CCFF ;font-size:25px; background-image:url('https://lh3.googleusercontent.com/-IA_BrzFY_hA/VizLlVzH26I/AAAAAAAATE0/H_F94dsYnjk/w1920-h1080/Material%2BWallpaper_1434344602576.png')">
+  <div id="header">
+     <a href="/" class="logo" style="font-size:300%;color:#FFFF00;">Social App</a>
+       {% if request.user.is_authenticated %}
+    <ul class="menu">
+      <li {% if section == "new post" %}class="selected"{% endif %}>
+    <a style="color:#FF9900 ;font-size:25px" href="{% url "posts:post_new" %}">post new</a>
+     </li>
+      <li {% if section == "dashboard" %}class="selected"{% endif %}>
+        <a style="color:#FF9900 ;font-size:25px" href="{% url "dashboard" %}">My dashboard</a>
+      </li>
+      <li {% if section == "posts" %}class="selected"{% endif %}>
+        <a style="color:#FF9900 ;font-size:25px" href="{% url "posts:post_feed" %}">Posts</a>
+      </li>
+
+    </ul>
+  {% endif %}
+
+  <span style="color: 	#00ff80" class="user">
+    {% if request.user.is_authenticated %}
+
+      Hello {{ request.user.first_name }},
+      <a style="color: #00FF00" href="{% url "logout_then_login" %}">Logout</a>
+    {% else %}
+      <a style="color: #00FF00" href="{% url "login" %}">Log-in</a>
+    {% endif %}
+  </span>
+  </div>
+  {% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li class="{{ message.tags }}">
+        {{ message|safe }}
+          <a href="#" class="close">✖</a>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
+  <div id="content">
+    {% block content %}
+    {% endblock %}
+  </div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+  <script src=" http://cdn.jsdelivr.net/jquery.cookie/1.4.1/jquery.cookie.min.js "></script>
+<script>
+var csrftoken = $.cookie('csrftoken');
+  function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+  }
+  $.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+      if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+      }
+    }
+  });
+  $(document).ready(function(){
+    {% block domready %}
+    {% endblock %}
+     });
+</script>
+</body>
+</html>
+

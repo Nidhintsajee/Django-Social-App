@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+  Posts Feeds
+{% endblock %}
+
+{% block content %}
+  <div id="sidebar">
+        <a style="color :#FFFFFF" href="{% url "posts:post_feed" %}">All</a>
+             </div>
+  <div id="main" class="post_feed">
+    <h1 style="color:#00FF74">Posts Updates</h1>
+    {% for post in posts %}
+      <div class="item">
+        <a style="color :#FFFFFF" href="{{ post.get_absolute_url }}">
+          <img src="{% if post.image %}{{ post.image.url }}{% else %}{% static "img/no_image.png" %}{% endif %}">
+        </a>
+        <a style="color :#FFFFFF" href="{{ post.get_absolute_url }}">{{ post.status }}</a><br>
+          {{ post.description }}
+        </div>
+    {% endfor %}
+  </div>
+{% endblock %}
